@@ -1,0 +1,51 @@
+# ─────────────────────────────────────────────
+#  Hadoop WordCount Demo — .gitignore
+# ─────────────────────────────────────────────
+
+# Operating-system junk
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.iml
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Environment / secret files (this demo doesn't need them, but just in case)
+.env
+*.local.env
+!*.env.example
+
+# Logs & temporary files
+*.log
+*.pid
+tmp/
+*.tmp
+
+# Local Hadoop / Docker cluster data — NEVER commit this.
+# (Only appears if you later mount HDFS volumes to host folders.)
+hadoop_namenode/
+hadoop_datanode/
+dfs/
+volumes/
+hadoop-data/
+
+# ── data/ folder ──
+# The sample text shipped with the repo SHOULD be committed so the demo works
+# out of the box, so data/ is tracked by default.
+# If you or students drop large or private text files in here, uncomment the
+# lines below and keep only the file(s) you want in the repo:
+#
+# data/*
+# !data/README.txt
+# !data/pride.txt

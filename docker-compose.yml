@@ -1,0 +1,37 @@
+services:
+  hadoop:
+    image: apache/hadoop:3.4
+    container_name: hadoop-demo
+    hostname: hadoop-demo
+    ports:
+      - "29870:9870"        # NameNode web UI  -> http://localhost:29870
+      - "28088:8088"        # YARN ResourceManager web UI -> http://localhost:28088
+    environment:
+      HADOOP_HOME: /opt/hadoop
+      JAVA_HOME: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.212.b04-0.el7_6.x86_64/jre
+      PATH: /opt/hadoop/bin:/opt/hadoop/sbin:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.212.b04-0.el7_6.x86_64/jre/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    volumes:
+      - ./hadoop-conf:/demo-conf:ro     # your config XMLs
+      - ./data:/demo-data               # drop .txt files here; auto-loaded into HDFS
+    stdin_open: true
+    tty: true
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        cp /demo-conf/*.xml $$HADOOP_HOME/etc/hadoop/ 2>/dev/null || true
+        if ! ls /tmp/hadoop-*/dfs/name/current >/dev/null 2>&1; then
+          hdfs namenode -format -force
+        fi
+        hdfs --daemon start namenode
+        hdfs --daemon start datanode
+        yarn --daemon start resourcemanager
+        yarn --daemon start nodemanager
+        sleep 10
+        hdfs dfsadmin -safemode wait || true
+        if ls /demo-data/* >/dev/null 2>&1; then
+          hdfs dfs -mkdir -p /demo/input
+          hdfs dfs -put -f /demo-data/* /demo/input/ || true
+        fi
+        echo "=== Hadoop is UP. NameNode http://localhost:29870  YARN http://localhost:28088 ==="
+        tail -F $$HADOOP_HOME/logs/*.log
